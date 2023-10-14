@@ -1,0 +1,69 @@
+import pandas as pd 
+from sklearn.model_selection import train_test_split 
+from sklearn.preprocessing import LabelEncoder, StandardScaler 
+from sklearn.linear_model import LogisticRegression, Ridge 
+from sklearn.metrics import accuracy_score, r2_score 
+
+# Load the dataset 
+data = pd.read_excel('mobi.xlsx') 
+
+# Select the relevant columns for prediction 
+selected_columns = ['Battery capacity (mAh)', 'Screen size (inches)', 'Resolution x', 'Resolution y', 'Processor', 'RAM (MB)', 'Internal storage (GB)', 'Rear camera', 'Front camera', 'Operating system', 'Wi-Fi', 'Bluetooth', 'GPS', 'Number of SIMs', '3G', '4G/ LTE', 'Price'] 
+data = data[selected_columns] 
+
+# Preprocessing 
+data = data.dropna()  # Remove rows with missing values 
+
+# Separate the features and target variable 
+X = data.iloc[:, :-1]  # Features 
+y = data.iloc[:, -1]   # Labels 
+
+# Encode categorical features 
+label_encoder = LabelEncoder() 
+X['Operating system'] = label_encoder.fit_transform(X['Operating system']) 
+X['Wi-Fi'] = label_encoder.fit_transform(X['Wi-Fi']) 
+X['Bluetooth'] = label_encoder.fit_transform(X['Bluetooth']) 
+X['GPS'] = label_encoder.fit_transform(X['GPS']) 
+X['3G'] = label_encoder.fit_transform(X['3G']) 
+X['4G/ LTE'] = label_encoder.fit_transform(X['4G/ LTE']) 
+
+# Split the dataset into training and testing sets 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=10) 
+
+# Feature scaling
+scaler = StandardScaler() 
+X_train = scaler.fit_transform(X_train) 
+X_test = scaler.transform(X_test) 
+
+# Model training 
+model = LogisticRegression() 
+model.fit(X_train, y_train) 
+
+# Model prediction 
+y_pred = model.predict(X_test) 
+
+#evaluation 
+train_score = model.score(X_train, y_train) 
+test_score = r2_score(y_pred, y_test) 
+
+print(f"Linear Regression R2 Train: {train_score:.3f}") 
+print(f"Linear Regression R2 Test: {test_score:.3f}") 
+
+if train_score < test_score: 
+    print("No issue of Overfittng!!") 
+else: 
+    print("The dataset seems to have a data overfitting issue") 
+    print("Using ridge regression we can regularize the data in order to reduce the overfitting issue!") 
+    ridge = Ridge(alpha=1.0) 
+    ridge.fit(X_train, y_train) 
+     
+    r2_train = ridge.score(X_train, y_train)
+    r2_test = r2_score(y_test, ridge.predict(X_test)) 
+
+    print(f"Ridge Regression R2 Train: {r2_train:.3f}") 
+    print(f"Ridge Regression R2 Test: {r2_test:.3f}") 
+
+
+# Model evaluation 
+#accuracy = accuracy_score(y_test, y_pred) 
+#print("Accuracy:", accuracy) 

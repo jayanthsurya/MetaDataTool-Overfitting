@@ -33,3 +33,6 @@ Next Steps:
 Try other models like Random Forest, SVM etc.
 Optimize hyperparameters using GridSearch.
 Deploy the model to make live predictions.
+
+
+The necessary dataset and python code has been provided and requires only to be run and made sure the code reads the dataset in xlsx format correctly.
